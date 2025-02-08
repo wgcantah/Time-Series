@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Applied Macroeconometrics Using R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="William Godfred Cantah" />
+    <script src="libs/header-attrs-2.29/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/panelset-0.3.0/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.3.0/panelset.js"></script>
+    <link rel="stylesheet" href="css/style.css" type="text/css" />
+    <link rel="stylesheet" href="css/rutgers-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+class: title-slide, middle
+background-image: url(fig/tpage1.png)
+background-position:center
+background-size: contain
+
+# **Applied Macroeconometrics Using R**
+### 
+
+
+.directorate[
+William Godfred Cantah &lt;br&gt;
+Data Science and Economic Policy &lt;br&gt;
+School of Economics, UCC
+]
+
+.title-date[
+3rd Feb, 2025
+]
+
+---
+layout: true
+background-image: url(fig/stpage1.png)
+background-size: contain
+background-position: center
+---
+class: inverse center middle
+
+# &lt;p style="font-size:60px; font-weight:bold"&gt;Course Outline
+
+
+
+---
+layout: true
+background-image: url(fig/page1.png)
+background-size: contain
+background-position: center
+---
+
+# .center[**Full Course Outline**]
+&lt;div style="font-size: 33px;"&gt;
+
+--
+
+.my-coral[Course Description]
+
+--
+
+- This course offers a concise overview of Macroeconometrics techniques needed to undertake cutting edge research in Macroeconomics. 
+
+--
+
+- It covers analysis that requires either stationary or non-stationary time series as well as linear and non-linear models. 
+
+--
+
+- The course also involves the practical application in R and would require students to engage in empirical application of various techniques and reviews. 
+
+---
+# .center[**Full Course Outline**]
+&lt;div style="font-size: 28px;"&gt;
+
+.pull-left[
+
+Week 1 to 7
+--------
+________
+- Stationary and Unit Root Testing 
+
+- Univariate Models 
+
+- Vector Autoregression (VAR)
+
+- Structural VARs
+
+- Cointegration and Error Correction Models 
+
+- Vector Error Correction Model
+
+
+]
+
+.pull-right[
+Week 8 to 12
+--------
+________
+- Linear and Non-Linear ARDL 
+
+- Markov-Switching Models 
+
+- Bayesian Methods &amp; Model Averaging 
+
+- Forecasting and Model Evaluation 
+]
+
+
+---
+# .center[**Properties of Time Series Data**]
+&lt;div style="font-size: 33px;"&gt;
+
+--
+
+- Time series data refers to a set of evenly spaced numerical data obtained by observing response variable at regular time periods. This could be .my-coral[daily],  .my-coral[weekly],  .my-coral[monthly],  .my-coral[quarterly] or  .my-coral[annual]
+
+--
+
+- Unlike cross-sectional data sets, one can take a single time series variable and analyse just that variable to comeout with policy recommendations. Such kind of analysis is  **.my-coral[Univariate]** Analysis. 
+
+--
+
+- Where more than a single variable is involved, the analysis refereed to as a  **.my-coral[Multivariate]** Analysis
+
+--
+
+- Also, time series data sets tend to have some peculair characteristics which makes analysis of such variables relatively complicated when compared with other form of data
+
+---
+# .center[**Properties of Time Series Data**]
+&lt;div style="font-size: 33px;"&gt;
+
+--
+
+- **.my-coral[Temporal Ordering]**, i.e, each data point tend to be associated with a specific timestamp. This implies the data-point carries some memory with it. 
+
+--
+
+- Other properties include, 
+  
+  - **.my-coral[Trend]** , 
+  
+  - **.my-coral[Seasonality]**, 
+  
+  - **.my-coral[Cyclical Patterns]**, 
+  
+  - **.my-coral[Structural Breaks]** and 
+  
+  - **.my-coral[Outliers and Anomalies]**.  
+
+
+---
+# .center[**Properties of Time Series Models**]
+&lt;div style="font-size: 33px;"&gt;
+
+--
+
+- Time series data have autoregressive (AR), moving average (MA), and seasonal dynamic processes.
+
+- Because time series data are ordered in time, past values influence future values. 
+
+- This often results in a violation of the assumption of .my-coral[no serial correlation] in the residuals of a standard OLS model.
+
+--
+
+- Many time series data are .my-coral[endogenously] related, which we can model with multi-equation time series approaches, such as vector autoregression (VAR).
+
+- This tend to violate the OLS assumption of .my-coral[Exogeneity]
+
+---
+# .center[**Properties of Time Series Models**]
+&lt;div style="font-size: 33px;"&gt;
+
+--
+
+- Many time series are in an equilibrium relationship over time, what we call cointegration. 
+
+&lt;br/&gt;
+
+- We can model this relationship with .my-coral[error correction models (ECM)].
+
+
+
+&lt;br/&gt;
+
+
+
+&lt;br/&gt;
+--
+
+- The effect of independent variables on a dependent variable can vary over time; we can estimate these dynamic effects with time varying parameter models. 
+
+
+---
+# .center[**Why is OLS not Advisable for a Time Series Model**]
+&lt;div style="font-size: 33px;"&gt;
+
+--
+
+- OLS estimates are sensitive to outliers.
+
+--
+
+- OLS attempts to minimize the sum of squares for errors; 
+
+
+--
+
+- time series with a trend will result in OLS placing greater weight on the first and last observations.
+
+--
+
+- OLS treats the regression relationship as deterministic, whereas time series have many stochastic trends.
+
+--
+
+- We can do better modeling dynamics than treating them as a nuisance.
+
+
+---
+# .center[**Stationarity**]
+&lt;div style="font-size: 33px;"&gt;
+
+--
+
+- A time series variable is said to be .my-coral[stationary] if there is no **systematic** change in ***.my-coral[mean]*** (i.e. no trend) and ***.my-coral[variance]*** overtime and if period variations have been removed. 
+
+--
+
+- There Two main types of Stationarity 
+
+--
+
+- ***.my-coral[Weak Stationarity]*** is when the first **two moments** of the variable (i.e., mean and autocovariance) are .my-coral[time invariant]. 
+
+--
+
+`$$E(Y_t)=\mu \ , \ E(Y_t-\mu)=\sigma^2&lt;\infty$$`
+
+`$$E[(Y_t-\mu)(Y_t-\mu)]=\gamma_{t2-t1} \forall t2,t1$$`
+
+
+---
+# .center[**Stationarity**]
+&lt;div style="font-size: 33px;"&gt;
+
+--
+
+- ***.my-coral[Strict Stationarity]*** occurs if the ***distribution*** of the variable remains the same as time progresses. 
+
+&lt;br/&gt;
+
+- That is, the probability that `\(Y_t\)` falls within a particular interval is the same now as at any time in the past or the future 
+
+--
+&lt;br/&gt;
+
+&lt;br/&gt;
+
+`$$i.e., (Y_{t1},Y_{t2},...,Y_{tk}) =(Y_{t1+h},Y_{t2+h},...,Y_{tk+h})$$`
+
+---
+# .center[**Why is Detecting Stationarity Important**]
+&lt;div style="font-size: 33px;"&gt;
+--
+
+- This a means of ensuring valid statistical inference.
+
+--
+
+- Avoiding Spurious Regressions
+
+--
+
+- Forecasting Reliability
+
+--
+
+- Structural Analysis 
+
+  - a non-stationary environment, structural breaks or changes in the data generating process can be mistaken for economic signals.
+  
+--
+
+- Consistent Economic Relationships
+
+  - Macroeconomic policy decisions are often based on the assumption that economic relationships are stable over time
+
+
+---
+# .center[**Dectecting Stationarity**]
+&lt;div style="font-size: 33px;"&gt;
+
+--
+
+- There are several ways of detecting whether a time series variable is .my-coral[stationary] or .my-coral[non-stationary]. 
+
+- However, there is only one formal approach i.e., .my-coral[Unit Roots Testing].
+
+--
+
+- The other methods include:
+
+--
+
+- Visual inspection of the time series plot
+
+--
+
+- The Use of Autocorrelation Function (ACF) plots
+
+--
+
+- Segment Comparison 
+
+---
+# .center[**Stationarity**]
+.pull-left[
+
+``` r
+library(readxl)
+data&lt;-read_excel("Data/workingseries.xlsx")
+head(data)
+```
+
+```
+## # A tibble: 6 × 9
+##   Month  exchangerate exchangerateVolatility FDI_GDP    GDP  LCPI   INF TBRATE
+##   &lt;chr&gt;         &lt;dbl&gt;                  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+## 1 2006Q1       0.0757                  -2.47  0.0827 15863.  2.88  12.1  10.6 
+## 2 2006Q2       0.167                   -2.47  0.0840 15830.  2.92  11.4   9.73
+## 3 2006Q3       0.211                   -2.47  0.103  19705.  2.94  12.4  10.3 
+## 4 2006Q4       0.0213                  -2.45  0.0814 21216.  2.95  10.8  10.3 
+## 5 2007Q1       0.131                   -2.45  0.105  17404.  2.97  10.5   9.76
+## 6 2007Q2       0.0645                  -2.45  0.0686 16572.  3.02  10.7   9.62
+## # ℹ 1 more variable: DEFICIT &lt;dbl&gt;
+```
+]
+
+.pull-right[
+
+- Next we install a package .my-coral["WGCTSERIES"] I have specifically developed for the purpose of undertaking time series analysis. 
+
+- Package is stored on my git-hub page that can be installed on your local R studio. 
+
+-  first install the package .my-coral["remotes"], then call in the .my-coral[library(remotes)]
+
+- Then install the specialised package by running the code .my-coral[install_github("wgcantah/WGCTSERIES")]
+]
+
+---
+# .center[**Stationarity**]
+
+.pull-left[
+
+``` r
+library(WGCTSERIES)
+data$Month &lt;- NULL #Remove the variable month from the dataframe
+```
+
+- Next we set all variables in the series as a time series variables and create a time variable using the .my-coral[tsset] function in the .my-coral[WGCTSERIES]
+
+
+``` r
+tsdata&lt;-tsset(data, start = c(2006, 1), frequency = 4)
+```
+]
+
+.pull-right[
+
+``` r
+head(tsdata)
+```
+
+```
+##   exchangerate exchangerateVolatility    FDI_GDP      GDP     LCPI      INF
+## 1   0.07566513              -2.468236 0.08273866 15862.76 2.875125 12.10333
+## 2   0.16709932              -2.467936 0.08398357 15829.70 2.915200 11.45000
+## 3   0.21149557              -2.466803 0.10270511 19704.76 2.942550 12.38000
+## 4   0.02130379              -2.454203 0.08139799 21216.30 2.945964 10.83000
+## 5   0.13061726              -2.452070 0.10456215 17403.71 2.974941 10.50000
+## 6   0.06454159              -2.450903 0.06859374 16572.38 3.017184 10.73667
+##      TBRATE    DEFICIT       time
+## 1 10.629167 -0.7826993 2006-01-01
+## 2  9.727333 -0.7862288 2006-04-01
+## 3 10.270167 -0.7932878 2006-07-01
+## 4 10.292000 -0.8038763 2006-10-01
+## 5  9.755333 -0.8179944 2007-01-01
+## 6  9.620333 -0.8285829 2007-04-01
+```
+]
+
+---
+# .center[**Time Series Plots**]
+.pull-left[
+
+``` r
+tsplot1(data = tsdata,
+        time_var="time",
+        value_vars=c("exchangerateVolatility", "INF", "DEFICIT", "FDI_GDP"),
+        plot_title="Plote of Macroeconomic Variables")
+tsplot2(data = tsdata,
+        time_var="time",
+        value_vars=c("exchangerateVolatility", "INF", "DEFICIT", "FDI_GDP"),
+        plot_title="Plote of Macroeconomic Variables")
+tsplot3(data = tsdata,
+        time_var="time",
+        value_vars=c("exchangerateVolatility", "INF", "DEFICIT", "FDI_GDP"),
+        plot_title="Plote of Macroeconomic Variables")
+
+acfplot(
+  data = tsdata,
+  value_vars = c("exchangerateVolatility", "DEFICIT"),
+  lag.max = 20,  # Adjust maximum lag as desired.
+  plot_title = "ACF Plot"
+)
+```
+]
+
+.pull-right[
+&lt;img src="tiseries_files/figure-html/unnamed-chunk-6-1.png" width="50%" /&gt;
+]
+
+
+---
+# .center[**Time Series Plots**]
+
+.pull-left[
+.center[
+&lt;img src="tiseries_files/figure-html/unnamed-chunk-7-1.png" width="60%" /&gt;
+]
+]
+
+.pull-right[
+.center[
+&lt;img src="tiseries_files/figure-html/unnamed-chunk-8-1.png" width="60%" /&gt;
+]
+]
+
+---
+# .center[**Unit Root**]
+&lt;div style="font-size: 33px;"&gt;
+
+--
+
+- .my-coral[Unit Root] is a statistical property of a time series data where the series exhibits a stochastic trend, also known as a random walk with drift.
+
+--
+
+- This implies, the series has a non-stationary behaviour in which the mean and variance are not constant overtime. 
+
+--
+
+- Consider an `\(AR(1)\)` Process:
+`$$Y_t = \rho\, Y_{t-1} + \varepsilon_t,\quad t = 1, 2, \ldots,   (1)$$`
+
+--
+
+- Note that
+`$$Y_{t-1} = \rho\, Y_{t-2} + \varepsilon_{t-1}   (2)$$`
+
+---
+# .center[**Unit Root**]
+&lt;div style="font-size: 33px;"&gt;
+
+--
+
+- We substitute `\(eqn(2)\)` into `\(eqn(1)\)`
+`$$Y_t = \rho(\rho\, Y_{t-2} + \varepsilon_{t-1}) + \varepsilon_t = \rho^2\, Y_{t-2} + \rho\, \varepsilon_{t-1} + \varepsilon_t \quad  (3)$$`
+
+--
+
+- If this done throughout the period of the series, then:
+
+`$$Y_t = \rho^k\, Y_{t-k} + \sum_{j=0}^{k-1} \rho^j\, \varepsilon_{t-j} \quad (4)$$`
+
+--
+
+- When `\(\rho=1\)` the model becomes:
+`$$Y_t = Y_{t-1} + \varepsilon_t \quad (5)$$`
+
+---
+# .center[**Unit Root**]
+&lt;div style="font-size: 33px;"&gt;
+
+--
+
+- Substituting recursively, we obtain:
+
+`$$Y_t = Y_0 + \sum_{i=1}^t \varepsilon_t \quad (6)$$`
+
+- This representation is that of a random walk.
+
+--
+
+- Taking expectation on both sides of `\(eqn(6)\)`
+
+`$$E(Y_t) = E(Y_0 + \sum_{i=1}^t \varepsilon_t)=Y_0 \quad (7)$$`
+
+
+---
+# .center[**Unit Root**]
+&lt;div style="font-size: 30px;"&gt;
+
+--
+
+- Taking the variance of the random walk process
+
+`$$Var(Y_t)=Var(Y_0+\varepsilon_1+\varepsilon_2+...+\varepsilon_t) \quad (8)$$`
+
+--
+
+- Since each of the error terms are drawn independently of each other, there is no covariance between them. 
+
+--
+
+- Hence, we can push the variance calculations through the additive terms:
+
+`$$Var(Y_t)=Var(Y_0)+Var(\varepsilon_1)+Var(\varepsilon_2)+\ldots+Var(\varepsilon_t) \quad (8)$$`
+
+
+$$Var(Y_t)=0+\sigma^2+\sigma^2+\ldots+\sigma^2 \quad(9) $$
+
+
+$$Var(Y_t)=t\sigma^2 \quad(10) $$
+
+---
+# .center[**Unit Root**]
+&lt;div style="font-size: 30px;"&gt;
+
+--
+
+- Since the variance of `\(Y_t\)` is a function of `\(t\)`, the process is not variance stationary. 
+
+--
+
+- Thus, a clear feature of RWM is the persistence of random shocks which never dies out. 
+
+--
+
+- Hence random walk processes tend to have infinite memory.
+
+--
+
+- However, taking the first difference make it a stationary process. 
+
+`$$\Delta Y_t= Y_t - Y_{t-1} \equiv Y_{t-1} - Y_{t-1}=\varepsilon_t \quad (11)$$`
+
+--
+
+- the differenced series `\({\Delta Y_t}\)` is stationary (since it is just white noise). Therefore, the original series `\(Y_t\)` is said to be integrated of order one, denoted `\(I(1)\)`.
+
+---
+# .center[**Unit Root**]
+&lt;div style="font-size: 30px;"&gt;
+
+--
+
+.my-coral[Characteristic Polynomial and the Unit Root]
+
+--
+
+- Consider an `\(AR(1)\)` process:
+
+`$$Y_t=\rho Y_{t-1}+\varepsilon_t \quad (12)$$`
+
+- This can be rewritten as:
+
+`$$Y=\rho LY+\varepsilon_t \quad (13)$$`
+
+- Grouping like terms 
+
+`$$Y-\rho LY=\varepsilon_t \quad (14)$$`
+
+
+---
+# .center[**Unit Root**]
+&lt;div style="font-size: 30px;"&gt;
+
+--
+
+.my-coral[Characteristic Polynomial and the Unit Root]
+
+--
+
+`$$Y(1-\rho L)=\varepsilon_t \quad (15)$$`
+
+--
+
+- The term in parentheses is the Characteristic polynomial. This is usually denoted by: 
+
+`$$\phi (L)=(1-\rho L)\quad (16)$$`
+
+--
+
+- Stationarity is achieved .my-coral[if and only if] the root of the lag polynomial are greater than one in absolute value. 
+
+--
+
+- If `\(L=z\)` solve for the values of `\(z\)` that set the polynomial equal to zero
+
+---
+# .center[**Unit Root**]
+&lt;div style="font-size: 30px;"&gt;
+
+--
+
+.my-coral[Characteristic Polynomial and the Unit Root]
+
+--
+
+$$1-z\rho=0 \quad \Rightarrow 1=z\rho \quad \rightarrow z^* = \frac{1}{\rho} $$
+
+--
+
+- Thus, our lag polynomial has one root, and it is equal to `\(\frac{1}{\rho}\)`
+
+--
+
+- If `\(|\rho| &lt; 1\)`, then `\(|z| &gt; 1\)` and the process is stationary.
+
+- If `\(\rho=1\)`, then `\(z=1\)` (i.e. the root lies exactly on the unit circle), which is a violation of the stationarity condition. This is the hallmark of a unit root.
+
+
+---
+# .center[**Testing for a Unit Root: The Dickey–Fuller Framework**]
+&lt;div style="font-size: 25px;"&gt;
+
+--
+
+- To test the hypothesis of a unit root, we often reparameterize the AR(1) model by writing
+
+`$$\Delta Y_t = \delta\, Y_{t-1} + \varepsilon_t,\quad \text{where } \delta = \rho - 1$$`
+
+  - Null hypothesis `\((H_0)\)`: `\(\delta=0\)` (i.e. `\(\rho=1\)`, unit root).
+
+  - Alternative hypothesis `\((H_1)\)`: `\(\delta&lt;0\)` (i.e. `\(|\rho|&lt;1\)`, stationary).
+
+The ordinary least squares (OLS) estimator for `\(\delta\)` is given by:
+
+
+`$$\hat{\delta} = \frac{\sum_{t=1}^T Y_{t-1}\,\Delta Y_t}{\sum_{t=1}^T Y_{t-1}^2}$$`
+
+
+---
+# .center[**Weakness of The Dickey–Fuller Framework**]
+&lt;div style="font-size: 30px;"&gt;
+
+--
+
+- Low Power Against Near-Stationary Alternatives
+
+--
+
+- Sensitivity to Lag Length Selection exposing it to Serial Correlation problem
+
+--
+
+-  Size Distortions in Finite Samples 
+  - The asymptotic (large sample) critical values for the DF test are nonstandard and obtained via simulation.
+  
+--
+
+- Sensitivity to Structural Breaks
+
+--
+
+- Deterministic Component Specification  (e.g., constant, trend) in the model is crucial).
+
+
+---
+# .center[**Modern Test of Unit Roots**]
+&lt;div style="font-size: 33px;"&gt;
+
+--
+
+- Augmented Dickey Fuller
+
+--
+
+- Philips Perron 
+
+--
+
+-  Kwiatkowski, Phillips, Schmidt, and Shin (KPSS) Test 
+
+--
+
+- Ng-Perron 
+
+--
+
+- Dickey–Fuller Generalized Least Squares
+
+--
+
+- We would employe the .my-coral[unitroottest] function in the .my-coral[WGCTSERIES] package to test for unitroot 
+
+
+``` r
+test&lt;-unitroottest(tsdata)
+```
+
+```
+## Registered S3 method overwritten by 'quantmod':
+##   method            from
+##   as.zoo.data.frame zoo
+```
+
+```
+## Warning in tseries::pp.test(var_data): p-value smaller than printed p-value
+```
+
+```
+## Warning in tseries::kpss.test(var_data): p-value greater than printed p-value
+```
+
+```
+## Warning in tseries::adf.test(var_data): p-value greater than printed p-value
+```
+
+```
+## Warning in tseries::kpss.test(var_data): p-value smaller than printed p-value
+```
+
+```
+## Warning in tseries::pp.test(var_data): p-value smaller than printed p-value
+```
+
+```
+## Warning in tseries::kpss.test(var_data): p-value smaller than printed p-value
+```
+
+```
+## Warning in tseries::pp.test(var_data): p-value smaller than printed p-value
+```
+
+```
+## Warning in tseries::kpss.test(var_data): p-value smaller than printed p-value
+```
+
+```
+## Warning in tseries::adf.test(var_data): p-value smaller than printed p-value
+```
+
+```
+## Warning in tseries::pp.test(var_data): p-value greater than printed p-value
+```
+
+```
+## Warning in tseries::kpss.test(var_data): p-value smaller than printed p-value
+```
+
+```
+## Warning in tseries::kpss.test(var_data): p-value greater than printed p-value
+```
+
+```
+## Warning in tseries::pp.test(var_data): p-value smaller than printed p-value
+```
+
+
+---
+# .center[**Modern Test of Unit Roots**]
+&lt;div style="font-size: 33px;"&gt;
+
+--
+
+``` r
+print(test)
+```
+
+```
+##                                      Variable   ADF ADF.P     PP PP.P KPSS
+## exchangerate                     exchangerate -3.71  0.03 -48.61 0.01 0.14
+## exchangerateVolatility exchangerateVolatility -0.03  0.99  -2.62 0.95 1.60
+## FDI_GDP                               FDI_GDP -3.61  0.04 -46.43 0.01 1.46
+## GDP                                       GDP -2.45  0.39 -46.72 0.01 1.89
+## LCPI                                     LCPI -5.24  0.01  -0.26 0.99 1.87
+## INF                                       INF -1.36  0.84  -9.96 0.53 0.35
+## TBRATE                                 TBRATE -3.07  0.14 -11.35 0.44 0.21
+## DEFICIT                               DEFICIT -2.03  0.56 -60.52 0.01 0.50
+##                        KPSS.P DFGLS             DFGLS.C
+## exchangerate             0.10 -3.07 -2.59, -1.94, -1.62
+## exchangerateVolatility   0.01  1.77 -2.59, -1.94, -1.62
+## FDI_GDP                  0.01 -1.03 -2.59, -1.94, -1.62
+## GDP                      0.01  1.86 -2.59, -1.94, -1.62
+## LCPI                     0.01  0.69 -2.59, -1.94, -1.62
+## INF                      0.10 -1.57 -2.59, -1.94, -1.62
+## TBRATE                   0.10 -2.22 -2.59, -1.94, -1.62
+## DEFICIT                  0.04 -1.75 -2.59, -1.94, -1.62
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "solarized-light",
+"highlightLanguage": ["r", "css", "yaml"],
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9",
+"slideNumberFormat": "<div class=\"progress-bar-container\">\n  <div class=\"progress-bar\" style=\"width: calc(%current% / %total% * 100%);\">\n  </div>\n</div>"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
